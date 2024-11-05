@@ -6,6 +6,7 @@ import { User } from "../models/User.model.js"
 
 
 const jwtverify = asyncHandler(async (req, res, next) => {
+  console.log("JWT verification started");
     try {
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
         if (!token) {
@@ -14,6 +15,7 @@ const jwtverify = asyncHandler(async (req, res, next) => {
 
         const decodedtoken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
         const user = await User.findById(decodedtoken?._id).select("-password -refreshToken");
+        console.log("Decoded token:", decodedtoken);
 
         if (!user) {
             throw new ApiError(401, "Invalid Access Token");
@@ -27,4 +29,26 @@ const jwtverify = asyncHandler(async (req, res, next) => {
     }
 });
 
-export {jwtverify} 
+const isAuthorized = (...roles) => {
+  return (req, res, next) => {
+      if (!roles.includes(req.user.Role)) {
+          return next(
+              new ApiError(403, `${req.user.Role} is not allowed to access this resource.`)
+          );
+      }
+      next();
+  };
+};
+
+
+export {jwtverify,isAuthorized} 
+
+// const isAuthorized = (...roles) => {
+//     return (req,res,next) => {
+//         if (!roles.includes(req.user.role)) {
+//             throw new ApiError(403, `${req.user.role} not allowed to access this resource.`);
+//         }
+//         next();
+//     };
+
+// }

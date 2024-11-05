@@ -6,10 +6,10 @@ const app = express()
 
 app.use(cors({
     origin:process.env.CORS_ORIGIN ,
-    Credential : true
+    credentials: true
 }))
 app.use(json({
-    limit : "16kb"
+    limit : "1mb"
 }))
 app.use(express.json({
     limit : "16kb"
@@ -22,8 +22,10 @@ app.use(cookieparser())
 
 // routes import
 import UserRouter from "./routes/user.routes.js"
+import JobRouter from "./routes/job.routes.js"
 
 // routes decliration 
 app.use("/api/v1/users", UserRouter)
+app.use("/api/v1/job", JobRouter)
 
 export default app

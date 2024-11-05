@@ -2,7 +2,7 @@ import { Router } from "express";
 import { jwtverify } from "../middlewares/Auth.middleware.js";
 const router = Router() 
 
-import {Registeruser , LoginUser , LogoutUser } from "../controllers/User.controller.js"
+import {Registeruser , LoginUser , LogoutUser , getCurrentUser, Changepassword } from "../controllers/User.controller.js"
 import { upload } from "../middlewares/multer.middleware.js";
 
 router.route("/register").post(
@@ -26,5 +26,7 @@ router.route("/register").post(
 
 router.route("/login").post(LoginUser)
 router.route("/logout").post( jwtverify , LogoutUser)
+router.route("/getUser").get(jwtverify ,getCurrentUser)
+router.route("/changePassword").put(jwtverify , Changepassword)
 
 export default router
