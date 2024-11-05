@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asycnHandler.js";
 
-export const PostJob = asyncHandler (async(req , res , next )=>{
+const PostJob = asyncHandler (async(req , res , next )=>{
     console.log("PostJob controller reached"); //debuging 
     const {title,
         jobType,
@@ -56,3 +56,30 @@ export const PostJob = asyncHandler (async(req , res , next )=>{
         new ApiResponse(200,job, "job uploded successfully")
     )
 })
+
+const getalljob = asyncHandler (async(req,res,next)=>{
+    const {city , niche , searchKeyword} = req.query ;
+    const query = {} ;
+    if (city) {
+        query.location = city ;
+    }
+    if (niche) {
+        query.jobNiche = niche ;
+    }
+    if (searchKeyword) {
+        query.$or = [
+            {title : {$regex : searchKeyword , $options : "i"}},
+            {companyName: { $regex: searchKeyword, $options: "i" }},
+            {introduction: { $regex: searchKeyword, $options: "i" }}
+        ];
+    }
+    const jobs = await Job.find(query)
+    return res.status(200).json(
+        new ApiResponse ({success: true,
+            jobs,
+            count: jobs.length })
+    )
+})
+
+export {PostJob ,
+    getalljob}
