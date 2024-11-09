@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose"
-
+import validator from "validator";
 const Applicationschema = new Schema ({
     jobSeekerInfo: {
         id: {
