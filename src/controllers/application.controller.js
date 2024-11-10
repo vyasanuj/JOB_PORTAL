@@ -3,6 +3,8 @@ import {ApiError} from "../utils/ApiError.js"
 import { Application } from "../models/Application.model.js";
 import { UploadOnCloudinary } from "../utils/Cloudinary.js";
 import { Job } from "../models/Job.model.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+
 
 
 const postApplication = asyncHandler(async (req, res, next) => {
@@ -38,7 +40,7 @@ const postApplication = asyncHandler(async (req, res, next) => {
   });
   if (isAlreadyApplied) {
     return next(
-      new ApiError("You have already applied for this job.", 400)
+      new ApiError(400 , "You have already applied for this job.")
     );
   }
   const ResumeLocalpath = req.files?.Resume?.[0]?.path;
@@ -56,32 +58,37 @@ const postApplication = asyncHandler(async (req, res, next) => {
     jobId: id,
     jobTitle: jobDetails.title,
   };
+  console.log("Job posted by:", jobDetails.postedBy);
+  console.log("Current user (employer):", req.user._id);
+
   const application = await Application.create({
     Resume: resume.url,
     jobSeekerInfo,
     employerInfo,
     jobInfo,
   });
-  res.status(201).json({
-    success: true,
-    message: "Application submitted.",
-    application,
-  });
+  res.status(201).json(
+    new ApiResponse ({
+      success: true,
+      message: "Application submitted.",
+      application,     
+    })
+  );
 });
 
-const employerGetAllApplication = asyncHandler(
-  async (req, res, next) => {
-    const { _id } = req.user;
-    const applications = await Application.find({
-      "employerInfo.id": _id,
-      "deletedBy.employer": false,
-    });
-    res.status(200).json({
-      success: true,
-      applications,
-    });
-  }
-);
+const employerGetAllApplication = asyncHandler(async (req, res, next) => {
+  const { _id } = req.user;
+  const allApplications = await Application.find({ "employerInfo.id": _id });
+
+  res.status(200).json({
+    statusCode: 200,
+    success: true,
+    message: "Success",
+    data: {
+      allApplications,
+    },
+  });
+});
 
 const jobSeekerGetAllApplication = asyncHandler(
   async (req, res, next) => {
@@ -101,7 +108,7 @@ const deleteApplication = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const application = await Application.findById(id);
   if (!application) {
-    return next(new ApiError("Application not found.", 404));
+    return next(new ApiError(404 , "Application not found."));
   }
   const { role } = req.user;
   switch (role) {
@@ -137,3 +144,11 @@ export {
     jobSeekerGetAllApplication ,
     deleteApplication
 }
+
+
+
+
+// const applications = await Application.find({
+  // "employerInfo.id": _id,
+  // "deletedBy.employer": false,
+// });

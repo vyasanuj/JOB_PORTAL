@@ -1,23 +1,9 @@
 import { Router } from "express";
 import { isAuthorized, jwtverify } from "../middlewares/Auth.middleware.js";
 import {   deleteApplication,employerGetAllApplication,jobSeekerGetAllApplication,
-    postApplication } from "../controllers/application.controller.js";
+           postApplication } from "../controllers/application.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 const router = Router() 
-
-
-// router.post(
-//   upload.fields(
-//     {
-//     name : "Resume" 
-//     maxCount : 1 
-// }
-// ),
-//     "/post/:id",
-//     jwtverify,
-//     isAuthorized("Job Seeker"),
-//     postApplication
-//   );
   
   router.route("/post/:id").post(upload.fields([{
     name : "Resume" ,
