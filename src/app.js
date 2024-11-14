@@ -1,6 +1,7 @@
 import express, { json } from "express" 
 import cors from "cors"
 import cookieparser from "cookie-parser"
+import { newsLetterCron } from "../automation/newsLetterCron.js"
 
 const app = express() 
 
@@ -29,5 +30,7 @@ import ApplicationRouter from "./routes/application.routes.js"
 app.use("/api/v1/users", UserRouter)
 app.use("/api/v1/job", JobRouter)
 app.use("/api/v1/application", ApplicationRouter)
+
+newsLetterCron()
 
 export default app

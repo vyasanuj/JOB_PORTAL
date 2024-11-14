@@ -107,22 +107,30 @@ const jobSeekerGetAllApplication = asyncHandler(
 const deleteApplication = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const application = await Application.findById(id);
+
   if (!application) {
-    return next(new ApiError(404 , "Application not found."));
+    return next(new ApiError(404, "Application not found."));
   }
-  const { role } = req.user;
-  switch (role) {
-    case "Job Seeker":
+
+  const role = req.user.Role;  // Accessing Role with capital 'R'
+
+  if (!role) {
+    return next(new ApiError(403, "Role is undefined."));
+  }
+
+  console.log("User Role:", role);
+
+  switch (role.toLowerCase()) {
+    case "job seeker":
       application.deletedBy.jobSeeker = true;
       await application.save();
       break;
-    case "Employer":
+    case "employer":
       application.deletedBy.employer = true;
       await application.save();
       break;
-
     default:
-      console.log("Default case for application delete function.");
+      console.log("Role not recognized in delete function:", role);
       break;
   }
 
@@ -131,12 +139,16 @@ const deleteApplication = asyncHandler(async (req, res, next) => {
     application.deletedBy.jobSeeker === true
   ) {
     await application.deleteOne();
+    console.log("Application fully deleted from database.");
   }
+
   res.status(200).json({
     success: true,
     message: "Application Deleted.",
   });
 });
+
+
 
 export {
     postApplication ,
@@ -151,4 +163,4 @@ export {
 // const applications = await Application.find({
   // "employerInfo.id": _id,
   // "deletedBy.employer": false,
-// });
+// });user
